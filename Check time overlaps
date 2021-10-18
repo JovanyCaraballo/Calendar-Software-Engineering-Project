@@ -1,0 +1,25 @@
+from dateparser import parse
+from datetime import datetime
+
+time_periods = ["6:30am-7:00am", "8:00am-9:00am","6:00am-7:30am", "7:00pm-9:00pm", "8:00pm-8:30pm"]
+
+
+requested_times = ["7:45am-8:10am", "7:50am-8:00am","8:00am-8:19am", "8:15am-8:30am", 
+                   "8:45am-9:00am","8:30am-8:35am", "8:30am-8:40am"]
+
+sort_list = []
+for i in range(len(time_periods)):
+    interval = time_periods[i].split("-")
+    start_time = interval[0]
+    end_time = interval[1]
+    start_time = parse(start_time)
+    end_time = parse(end_time)
+    sort_list.append([start_time, end_time])
+
+for i in range(len(sort_list)): 
+    for j in range(len(sort_list)): 
+        (first_start, first_end) = sort_list[i]
+        (next_start, next_end) = sort_list[j]
+        if first_start < next_start:
+            if next_start < first_end:
+                print('{} overlaps with {}'.format(time_periods[i], time_periods[j]))
