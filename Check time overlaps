@@ -6,6 +6,8 @@ time_periods = ["6:30am-7:00am", "8:00am-9:00am","6:00am-7:30am", "7:00pm-9:00pm
 
 requested_times = ["7:45am-8:10am", "7:50am-8:00am","8:00am-8:19am", "8:15am-8:30am", 
                    "8:45am-9:00am","8:30am-8:35am", "8:30am-8:40am"]
+                   
+#8:30am-8:35am, 8:30am-8:40am not marked as overlap ********
 
 sort_list = []
 for i in range(len(time_periods)):
