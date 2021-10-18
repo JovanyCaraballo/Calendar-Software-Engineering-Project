@@ -1,1 +1,61 @@
 #This is a Test
+from datetime import datetime
+from dateparser import parse
+def get_season (date_str: str):
+    date_str = parse(date_str)
+    date_str = str(date_str).replace(" 00:00:00", "")
+    date_str = str(date_str).split("-")
+    year = int(date_str[0])
+    month = int(date_str[1]) 
+    day = int(date_str[2])
+    if (month == 1) or (month == 2) or (month == 3): 
+        season = "Winter"
+    elif (month == 4) or (month == 5) or (month == 6):
+        season = "Spring"
+    elif (month == 7) or (month == 8) or (month == 9):
+        season = "Summer"
+    elif (month == 10) or (month == 11) or (month == 12): 
+        season = "Fall"
+    if month % 3 == 0 and day >= 21: 
+        if season == "Winter":
+            season = "Spring"
+        elif season == "Spring":
+            season = "Summer"
+        elif season == "Summer":
+            season = "Fall"
+        else:
+            season = "Winter"
+    return season
+
+def main ():
+    events = [
+        ["Aug. 23, 2021", "Classes Begin"],
+        ["Sept. 6, 2021", "Labor Day"],
+        ["Oct. 11, 2021", "Columbus Day"],
+        ["Nov. 11, 2021", "Veterans Day"],
+        ["Nov. 24, 2021", "Thanksgiving"],
+        ["Dec. 13, 2021", "Final Exam"],
+        ["01/10/2022", "Classes Begin"],
+        ["01/17/2022", "Martin Luther King Jr. Day"],
+        ["March 07, 2022", "Spring Break"],
+        ["4 -28 -2022", "Study Day"],
+        ["May 2, 2022", "Final Exam"],
+    ]
+    
+    print(f'{"":-<65}')
+    print("{}{:>24}{:>37}" .format("Date", "Activity", "Calendar Season"))
+    print(f'{"":-<65}')
+    for i in range(len(events)):
+        for j in range(len(events[i])-1):
+            date_str = events[i][j]
+            activity = events[i][j+1]
+            season = get_season(date_str)
+            date_str = parse(date_str)
+            date_str = str(date_str).replace(" 00:00:00", "")
+            date_str = date_str.split("-")
+            year = int(date_str[0])
+            month = int(date_str[1])
+            day = int(date_str[2])
+            print('{:%b %d, %Y}'.format(datetime(year, month, day)), end="")
+            print("        {:30}{} {}" .format(activity, season, year)) 
+main()
