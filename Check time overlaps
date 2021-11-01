@@ -1,27 +1,25 @@
-from dateparser import parse
 from datetime import datetime
 
 time_periods = ["6:30am-7:00am", "8:00am-9:00am","6:00am-7:30am", "7:00pm-9:00pm", "8:00pm-8:30pm"]
-
-
-requested_times = ["7:45am-8:10am", "7:50am-8:00am","8:00am-8:19am", "8:15am-8:30am", 
-                   "8:45am-9:00am","8:30am-8:35am", "8:30am-8:40am"]
                    
-#8:30am-8:35am, 8:30am-8:40am not marked as overlap ********
+dates = []
+overlapping = []
+DATE_FORMAT = "%I:%M%p"
 
-sort_list = []
-for i in range(len(time_periods)):
-    interval = time_periods[i].split("-")
-    start_time = interval[0]
-    end_time = interval[1]
-    start_time = parse(start_time)
-    end_time = parse(end_time)
-    sort_list.append([start_time, end_time])
+for block in time_periods:
+    times = block.split("-")
+    beg_time = datetime.strptime(times[0], DATE_FORMAT)
+    end_time = datetime.strptime(times[1], DATE_FORMAT)
+    dates.append((beg_time, end_time))
 
-for i in range(len(sort_list)): 
-    for j in range(len(sort_list)): 
-        (first_start, first_end) = sort_list[i]
-        (next_start, next_end) = sort_list[j]
-        if first_start < next_start:
-            if next_start < first_end:
-                print('{} overlaps with {}'.format(time_periods[i], time_periods[j]))
+for i in range(len(dates)):
+    for j in range(i + 1, len(dates)):
+        if (dates[i][0] <= dates[j][1]) and (dates[j][0] <= dates[i][1]):
+            overlapping.append((dates[i], dates[j]))
+
+for overlap in overlapping:
+    print(f'{overlap[0][0].strftime(DATE_FORMAT)}-{overlap[0][1].strftime(DATE_FORMAT)}'
+          f' overlaps with '
+          f'{overlap[1][0].strftime(DATE_FORMAT)}-{overlap[1][1].strftime(DATE_FORMAT)}')
+
+
