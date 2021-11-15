@@ -3,16 +3,18 @@ from datetime import datetime
 
 # accepts events information, stores it, and then calls to check overlap if there are events
 class Day:
-    def __init__(self, Events) 
+    def __init__(self, Events):
     # for each day in month, if there are no events, date is blank and doesnt check overlap
         self._events_info = []
         self._events_info.append(Events) # figure out what would this append - dictionary from created events
         self.scan_events() # (self._events_info)
         
-    def scan_events(self)    # (, events_info)
+    def scan_events(self):    # (, events_info)
         if None in self._events_info:
             pass # if there are no events, nothing happens
         else:
             for events in self._events_info: # need to read event and extract times from it 
                 time_periods = events["time"]
                 self.check_overlap(time_periods)
+                
+    def check_overlap(self):
