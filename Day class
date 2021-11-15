@@ -15,4 +15,4 @@ class Day:
         else:
             for events in self._events_info: # need to read event and extract times from it 
                 time_periods = events["time"]
-                self.check_ovelap(time_periods)
+                self.check_overlap(time_periods)
