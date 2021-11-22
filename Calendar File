@@ -1,0 +1,28 @@
+from datetime import date, datetime, timedelta
+#from calendar import monthrange
+import calendar
+
+def show_calendar():
+    # populate calendar with all details
+    yy = 2021  # get selected year
+    mm = 11    # get selected month
+    dd = 15    # get selected day
+    time = "8:00am-8:19am"   # time of event
+
+    # display the calendar by month
+    print(calendar.month(yy, mm))
+
+def main():
+    today = date.today()
+    print("Today's date is:", today)
+
+    # Show current calendar
+    current_date = datetime.now()
+    # print("Year:", current_date.year)
+    # print("Month:", current_date.month)
+    # print("Day:", current_date.day)
+
+    print(calendar.calendar(current_date.year, current_date.month, 1, current_date.day))
+    show_calendar()
+
+main()
