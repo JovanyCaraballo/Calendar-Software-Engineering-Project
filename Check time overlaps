@@ -1,7 +1,11 @@
 from datetime import datetime
 
-time_periods = ["6:30am-7:00am", "8:00am-9:00am","6:00am-7:30am", "7:00pm-9:00pm", "8:00pm-8:30pm"]
-                   
+
+# time_periods = ["6:30am-7:00am", "8:00am-9:00am","6:00am-7:30am", "7:00pm-9:00pm", "8:00pm-8:30pm"]
+
+time_periods = ["7:45am-8:10am", "7:50am-8:00am","8:00am-8:19am", "8:15am-8:30am",
+                   "8:45am-9:00am","8:30am-8:35am", "8:30am-8:40am"]
+
 dates = []
 overlapping = []
 DATE_FORMAT = "%I:%M%p"
@@ -14,12 +18,10 @@ for block in time_periods:
 
 for i in range(len(dates)):
     for j in range(i + 1, len(dates)):
-        if (dates[i][0] <= dates[j][1]) and (dates[j][0] <= dates[i][1]):
+        if (dates[i][0] <= dates[j][1]) and (dates[j][0] <= dates[i][1]):  # SHOULD REMOVE "=" IN <=
             overlapping.append((dates[i], dates[j]))
 
 for overlap in overlapping:
     print(f'{overlap[0][0].strftime(DATE_FORMAT)}-{overlap[0][1].strftime(DATE_FORMAT)}'
           f' overlaps with '
           f'{overlap[1][0].strftime(DATE_FORMAT)}-{overlap[1][1].strftime(DATE_FORMAT)}')
-
-
