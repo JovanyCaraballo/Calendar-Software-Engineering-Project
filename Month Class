@@ -3,16 +3,17 @@ from datetime import datetime
 
 class Month:
     def __init__(self, month_name): # name of month determines length of month/ number of days in month
-        self.month_name = month_name
+        self.month_name = month_name # TAKE IN NUMBER NOT NAME?
         self.num_of_days = 0
         self.month = []
         self.scan_days()
 
     def scan_days(self):
-        if self.month_name == "January":
-            self.num_of_days = 31 # figure this out
+        if self.month_name == "January": # NOT NEEDED IF USING NUMBERS
+            self.num_of_days = 31  # USE LENGTH OF .MONTH
 
 
         while len(self.month) < self.num_of_days: # adjust based on month
-            self.month.append(Day()) # creates instance of days - scratch that, number date but not create -
+            self.month.append(Day()) # creates instance of days - scratch that, numbers date but not create -
             # not compatible with Day class because Day class only creates day when it has an event
+            # THIS CLASS WILL NOT BE NEEDED?
