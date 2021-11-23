@@ -1,5 +1,5 @@
 from datetime import datetime
-
+import calendar
 
 class Month:
     def __init__(self, month_name): # name of month determines length of month/ number of days in month
@@ -16,4 +16,14 @@ class Month:
         while len(self.month) < self.num_of_days: # adjust based on month
             self.month.append(Day()) # creates instance of days - scratch that, numbers date but not create -
             # not compatible with Day class because Day class only creates day when it has an event
-            # THIS CLASS WILL NOT BE NEEDED?
+            # THIS CLASS WILL BE NEEDED FOR MONTH DISPLAY- NEEDS TO BE CHANGED?
+            
+            
+            # populate calendar with all details
+            yy = 2021  # get selected year
+            mm = 11  # get selected month
+            dd = 15  # get selected day
+            time = "8:00am-8:19am"  # time of event
+
+            # display the calendar by month
+            print(calendar.month(yy, mm))
