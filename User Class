@@ -1,0 +1,97 @@
+import sqlite3
+
+class User:
+    _last_assigned_number = 1000
+    def __init__(self, username, password, new_user):
+        self._username = username
+        self._password = password
+        print("number before", User._last_assigned_number)
+        if new_user == True:
+            self.add_user()
+        else:
+            hold = self.authorize()
+
+    def create_calendar(self, code):
+        print("CREATING")
+        db_path = "calendar_data_db.db"
+        connection = sqlite3.connect(db_path)
+
+
+        # CREATE CALENDAR FOR EACH PERSON/CODE OR 1 BIG ONE WITH BLANK INFO UNLESS PROVIDED AND SELECT EVENTS BY CODE
+        sql_command = """
+        INSERT INTO Calendar(event_name, event_date, event_time, code)    
+        VALUES(?,?,?,?);
+        """
+
+        # sql_command = """
+        # DELETE FROM Calendar
+        # """
+
+
+        cursor = connection.cursor()
+        # cursor.execute("""CREATE TABLE Calendar (
+        # event_name TEXT,
+        # event_date TEXT,
+        # event_time TEXT,
+        # code INTEGER
+        # )
+        # """)
+
+        user_record = ("Test Event Name", "Test Event Date", "Test Event Time", code)
+        #cursor.execute(sql_command, user_record)
+        #connection.commit()
+        #connection.close()
+
+    def add_user(self):
+        db_path = "calendar_data_db.db"
+        connection = sqlite3.connect(db_path)
+
+        sql_command = """
+        INSERT INTO Users(username,password,code)    
+        VALUES(?,?,?);
+        """
+
+        # sql_command = """
+        # DELETE FROM Users
+        # """
+
+        cursor = connection.cursor()
+        print("New user")
+        new_user_check = self.authorize() # NEW USER CHECK NOT NEEDED BECAUSE BUTTON CLICK MAY BE WRONG - needed for constructor separation
+        print(new_user_check)
+        if new_user_check == False:
+            User._last_assigned_number = User._last_assigned_number + 1
+            print("user code is:", User._last_assigned_number)
+            code = User._last_assigned_number
+            user_record = (self._username, self._password, code)
+            cursor.execute(sql_command, user_record)
+
+            # cursor.execute(sql_command) #used to delete all
+            # connection.commit()
+            connection.close() # create before close?
+            #self.create(code) # create personal calendar
+        else:
+            print("User already exists")
+
+    def authorize(self):
+        #print("first")
+        db_path = "calendar_data_db.db"
+        connection = sqlite3.connect(db_path)
+
+        cursor = connection.cursor()
+        print("try", self._username, self._password)
+        #for row in cursor.execute("SELECT * FROM Users"):
+        user = None
+        for row in cursor.execute("SELECT * FROM Users WHERE username=?", (self._username,)):
+            if row[1] == self._password:
+                print("YEAH", self._password)
+                user = row[0]
+                passcode = row[1]
+                code = row[2]
+                print(f'{user:20} {passcode:10} {code:10}')  # EACH USER HAS THEIR OWN CALENDAR CODE THAT THEY USE TO SEE SPECIFIC CALENDARS
+        if user == None:
+            print("waaaa")
+            print("PUT DISPLAY MESSAGES IN USER AND MAKE CHECK_USER PARENT")
+            return False
+        else:
+            return True
