@@ -1,0 +1,160 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import *
+from user import User
+import sys
+
+class Login(QDialog):
+    def __init__(self):
+        super(Login, self).__init__()
+        self._parent = User
+        self.new_user = False
+        self.setup_ui(self)
+
+    def setup_ui(self, Dialog):
+        Dialog.setObjectName("Login")
+        Dialog.resize(789, 539)
+        self.frame = QtWidgets.QFrame(Dialog)
+        self.frame.setGeometry(QtCore.QRect(10, -30, 771, 521))
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
+        self.gridLayoutWidget = QtWidgets.QWidget(self.frame)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(170, 80, 411, 351))
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setObjectName("gridLayout")
+        self.label = QtWidgets.QLabel(self.gridLayoutWidget)
+        self.label.setObjectName("label_2")
+        self.gridLayout.addWidget(self.label, 0, 0, 1, 1)
+        self.lineEdit_2 = QtWidgets.QLineEdit(self.gridLayoutWidget)
+        self.lineEdit_2.setObjectName("lineEdit_2")
+        self.gridLayout.addWidget(self.lineEdit_2, 1, 2, 1, 1)
+        self.label_2 = QtWidgets.QLabel(self.gridLayoutWidget)
+        self.label_2.setObjectName("label")
+        self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
+        self.lineEdit = QtWidgets.QLineEdit(self.gridLayoutWidget)
+        self.lineEdit.setObjectName("lineEdit")
+        self.gridLayout.addWidget(self.lineEdit, 0, 2, 1, 1)
+
+        self.horizontalLayoutWidget = QtWidgets.QWidget(self.frame)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(530, 430, 195, 80))
+        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.push_button = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.push_button.setObjectName("push_button")
+        self.horizontalLayout.addWidget(self.push_button)
+        self.push_button_2 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.push_button_2.setObjectName("push_button_2")
+        self.horizontalLayout.addWidget(self.push_button_2)
+        self.push_button.clicked.connect(self.check_user)
+        self.push_button_2.clicked.connect(self.create_account)
+
+
+        self.retranslate_ui(Dialog)
+        QtCore.QMetaObject.connectSlotsByName(Dialog)
+
+    def retranslate_ui(self, Dialog):
+        _translate = QtCore.QCoreApplication.translate
+        Dialog.setWindowTitle(_translate("Dialog", "Login"))
+        self.push_button.setText(_translate("Dialog", "Log in"))
+        self.push_button_2.setText(_translate("Dialog", "Create Account"))
+        self.label.setText(_translate("Dialog", "Username:"))
+        self.label_2.setText(_translate("Dialog", "Password:"))
+
+    # def close_application(self):
+    #     confirmation = QMessageBox.question(self, "Confirm Close",
+    #                                         "Are you sure you want to close this window?",
+    #                                         QMessageBox.Yes | QMessageBox.No |
+    #                                         QMessageBox.Cancel, QMessageBox.Cancel)
+    #     if confirmation == QMessageBox.Yes:
+    #         AddDialog.close(self)
+    #     if confirmation == QMessageBox.No:
+    #         pass
+    #     if confirmation == QMessageBox.Cancel:
+    #         pass
+
+    def invald(self):
+        show_msg = QMessageBox(QMessageBox.Critical,
+                               'Invalid Login Information',
+                               "You have entered an invalid email / password combination.",
+                               QMessageBox.Ok | QMessageBox.Ok) # QMessageBox.Cancel
+        show_msg.exec_()
+
+    def repeat(self):
+        print("in repeat")
+        show_msg = QMessageBox(QMessageBox.Warning,
+                               'Warning',
+                               "Account already exists.",
+                               QMessageBox.Ok | QMessageBox.Ok) # QMessageBox.Cancel
+        show_msg.exec_()
+
+    def no_new_input(self):
+        show_msg = QMessageBox(QMessageBox.Critical,
+                               'Create Account',
+                               "Enter a valid email and password to create an account.",
+                               QMessageBox.Ok | QMessageBox.Ok)
+        show_msg.exec_()
+
+    def no_login_input(self):
+        show_msg = QMessageBox(QMessageBox.Critical,
+                               'Error',
+                               "Please enter a valid email and password combination to log in.",
+                               QMessageBox.Ok | QMessageBox.Ok)
+        show_msg.exec_()
+
+    def success(self):
+        confirmation = QMessageBox.question(self, "Account Created",
+                                            "Successfully created account",
+                                            QMessageBox.Ok, QMessageBox.Ok)
+        if confirmation == QMessageBox.Ok:
+            self.close(self)
+
+    def check_user(self):
+        try:
+            self.username = self.lineEdit.text()
+            self.password = self.lineEdit_2.text()
+            if (self.username == "") or (self.password == ""):
+                self.no_login_input()
+            else:
+                print("Check", self.new_user)
+                #self._parent.authorize()
+                User(self.username, self.password, self.new_user) #CHECK IF NEW USER IS STILL FALSE
+                print("After check")
+                if hold == False:
+                    self.invald()
+                else:
+                    pass # this is going to change to display calendar
+
+        except:
+            print("problem")
+            self.invald() #CHECK
+
+
+    def create_account(self):
+        try:
+            self.username = self.lineEdit.text()
+            self.password = self.lineEdit_2.text()
+            if (self.username == "") or (self.password == ""):
+                self.no_new_input()
+            else:
+                print("in")
+                self.new_user = True # set to false after failure??????????
+                User(self.username, self.password, self.new_user) # TAKE IN USER AS PARENT AND THEN CALL TO CREATE METHOD
+                print("out")
+                self.success() # NOT WORKING CORRECTLY BECAUSE CANT DIFFERENTIATE CREATION and ALREADY EXISTS
+                self.new_user = False # HERE?????
+        except:
+            print("in except")
+            self.repeat()
+
+def main():
+    app = QApplication(sys.argv)
+    gui = Login()
+    gui.show()
+    sys.exit(app.exec_())
+
+
+main()
