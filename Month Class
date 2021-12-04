@@ -1,29 +1,39 @@
+from PyQt5.QtWidgets import *
 from datetime import datetime
+from day import Day
 import calendar
+import random
+import sys
 
 class Month:
-    def __init__(self, month_name): # name of month determines length of month/ number of days in month
-        self.month_name = month_name # TAKE IN NUMBER NOT NAME?
+    def __init__(self, parent, month_num):
+        self.month_num = month_num
         self.num_of_days = 0
         self.month = []
-        self.scan_days()
+        self.i = 0
+        self.scan_days(parent)
 
-    def scan_days(self):
-        if self.month_name == "January": # NOT NEEDED IF USING NUMBERS
-            self.num_of_days = 31  # USE LENGTH OF .MONTH
+    def scan_days(self, parent):
+        current_date = datetime.now()
+        print(calendar.monthrange(current_date.year, self.month_num))
+        self.num_of_days = calendar.monthrange(current_date.year, self.month_num)
+        self.num_of_days = self.num_of_days[1]
+        print(self.num_of_days)
+
+        while len(self.month) < self.num_of_days: # adjusts based on month
+            print(self.i)
+            self.month.append(self.i)
+            self.i = self.i + 1
+            dialog = Day(parent)               
 
 
-        while len(self.month) < self.num_of_days: # adjust based on month
-            self.month.append(Day()) # creates instance of days - scratch that, numbers date but not create -
-            # not compatible with Day class because Day class only creates day when it has an event
-            # THIS CLASS WILL BE NEEDED FOR MONTH DISPLAY- NEEDS TO BE CHANGED?
-            
-            
-            # populate calendar with all details
-            yy = 2021  # get selected year
-            mm = 11  # get selected month
-            dd = 15  # get selected day
-            time = "8:00am-8:19am"  # time of event
+            # self.month.append(Day()) # creates instance of days
 
-            # display the calendar by month
-            print(calendar.month(yy, mm))
+# def main():
+#     app = QApplication(sys.argv)
+#     gui = Month(random.randint(1,12)) # check range
+#     #gui.show()
+#     sys.exit(app.exec_())
+#
+#
+# main()
