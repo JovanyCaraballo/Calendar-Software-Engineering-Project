@@ -1,21 +1,28 @@
-import re
-
 from PyQt5 import QtCore, QtGui, QtWidgets
 from create_event import Create_Event
 from delete_event import Delete_Event
 from datetime import date, datetime
 from ShareDialogCopy import Share
+from CheckUserCopy import Login
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 from month import Month
 import calendar
 import sys
+import re
 
 
 class Calendar(QMainWindow):
     def __init__(self, parent=None):
         super(Calendar, self).__init__(parent) # QMainWindow or MainWindow
+        dialog = Login(self)
+        dialog.exec_()
+        dialog.show()
+        dialog.closeEvent(self.check_login_status())
+        # dialog.raise_()
+        # dialog.activateWindow()
         print("working?")
+        print(parent)
         self.overlap_box = []
         self.setup_ui(self)
 
@@ -129,6 +136,10 @@ class Calendar(QMainWindow):
         self.push_button5.setText(_translate("MainWindow", "Delete"))
         self.show_year()
 
+    def check_login_status(self):
+        self.close()
+
+
     def update_scroll_area(self, text, date, i):
         #print(date)
         self.table_widget.setHorizontalHeaderLabels((date).split())
@@ -141,12 +152,13 @@ class Calendar(QMainWindow):
         #print(i)
         while i < rows:
             self.table_widget.setStyleSheet("QTableWidget{font-size: 6.2pt;}")
-            self.table_widget.setItem(i, 0, QTableWidgetItem(self.overlap_box[i]))
+            self.table_widget.setItem(i, 0, QTableWidgetItem(f'  {self.overlap_box[i]:}'))
             i = i + 1
 
     def show_year(self):
         # display the calendar by year
         current_date = datetime.now()
+        Month(self, current_date.month, code)
         print(calendar.calendar(current_date.year, 2, 1, 6))
         print("repr", repr(calendar.calendar(current_date.year, 2, 1, 6)))
         #cal = calendar.calendar(current_date.year, 2, 1, 6).split('\n')
@@ -195,7 +207,7 @@ class Calendar(QMainWindow):
     def show_month(self):
         # populate calendar with all details
         current_date = datetime.now()
-        Month(self, current_date.month)
+        Month(self, current_date.month, code)
         yy = current_date.year  # get selected year
         mm = current_date.month  # get selected month
         dd = current_date.day  # get selected day
@@ -203,13 +215,12 @@ class Calendar(QMainWindow):
         # display the calendar by month
         print(calendar.month(yy, mm))
         self.label.resize(540, 631)
-        #self.label.setFont(QFont('Arial', 30))
         self.label.setStyleSheet("QLabel{font-size: 30pt;}")
         self.label.setText(calendar.month(yy, mm))
 
-
 def main():
     app = QApplication(sys.argv)
+    print(sys.argv)
     gui = Calendar()
     gui.show()
     sys.exit(app.exec_())
