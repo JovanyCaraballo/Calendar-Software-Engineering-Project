@@ -1,12 +1,13 @@
+#from SharedCalendarCopy import Calendar
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from user import User
 import sys
 
 class Login(QDialog):
-    def __init__(self):
+    def __init__(self, parent):
         super(Login, self).__init__()
-        self._parent = User
+        self._parent = parent
         self.new_user = False
         self.setup_ui(self)
 
@@ -35,6 +36,7 @@ class Login(QDialog):
         self.gridLayout.addWidget(self.label_2, 1, 0, 1, 1)
         self.lineEdit = QtWidgets.QLineEdit(self.gridLayoutWidget)
         self.lineEdit.setObjectName("lineEdit")
+        self.lineEdit.setFocus()
         self.gridLayout.addWidget(self.lineEdit, 0, 2, 1, 1)
 
         self.horizontalLayoutWidget = QtWidgets.QWidget(self.frame)
@@ -64,97 +66,83 @@ class Login(QDialog):
         self.label.setText(_translate("Dialog", "Username:"))
         self.label_2.setText(_translate("Dialog", "Password:"))
 
-    # def close_application(self):
-    #     confirmation = QMessageBox.question(self, "Confirm Close",
-    #                                         "Are you sure you want to close this window?",
-    #                                         QMessageBox.Yes | QMessageBox.No |
-    #                                         QMessageBox.Cancel, QMessageBox.Cancel)
-    #     if confirmation == QMessageBox.Yes:
-    #         AddDialog.close(self)
-    #     if confirmation == QMessageBox.No:
-    #         pass
-    #     if confirmation == QMessageBox.Cancel:
-    #         pass
-
-    def invald(self):
-        show_msg = QMessageBox(QMessageBox.Critical,
-                               'Invalid Login Information',
-                               "You have entered an invalid email / password combination.",
-                               QMessageBox.Ok | QMessageBox.Ok) # QMessageBox.Cancel
-        show_msg.exec_()
-
-    def repeat(self):
-        print("in repeat")
-        show_msg = QMessageBox(QMessageBox.Warning,
-                               'Warning',
-                               "Account already exists.",
-                               QMessageBox.Ok | QMessageBox.Ok) # QMessageBox.Cancel
-        show_msg.exec_()
-
     def no_new_input(self):
         show_msg = QMessageBox(QMessageBox.Critical,
                                'Create Account',
                                "Enter a valid email and password to create an account.",
                                QMessageBox.Ok | QMessageBox.Ok)
         show_msg.exec_()
+        self.lineEdit.setFocus()
 
     def no_login_input(self):
         show_msg = QMessageBox(QMessageBox.Critical,
-                               'Error',
+                               'Login Error',
                                "Please enter a valid email and password combination to log in.",
                                QMessageBox.Ok | QMessageBox.Ok)
         show_msg.exec_()
-
-    def success(self):
-        confirmation = QMessageBox.question(self, "Account Created",
-                                            "Successfully created account",
-                                            QMessageBox.Ok, QMessageBox.Ok)
-        if confirmation == QMessageBox.Ok:
-            self.close(self)
+        self.lineEdit.setFocus()
 
     def check_user(self):
-        try:
-            self.username = self.lineEdit.text()
-            self.password = self.lineEdit_2.text()
-            if (self.username == "") or (self.password == ""):
-                self.no_login_input()
-            else:
-                print("Check", self.new_user)
-                #self._parent.authorize()
-                User(self.username, self.password, self.new_user) #CHECK IF NEW USER IS STILL FALSE
-                print("After check")
-                if hold == False:
-                    self.invald()
-                else:
-                    pass # this is going to change to display calendar
+        self.username = self.lineEdit.text()
+        self.password = self.lineEdit_2.text()
+        if (self.username == "") or (self.password == ""):
+            self.no_login_input()
+        else:
+            print("Check", self.new_user) #CHECK IF NEW USER IS STILL FALSE
+            User(self, self.username, self.password, self.new_user)
+            # THIS HAS TO CLOSE?
+            print("After check")
+            print(self) # if close login close all and thats what causes error
 
-        except:
-            print("problem")
-            self.invald() #CHECK
 
+            #CLOSE HERE?
+            self.show_calendar()
+            #Login.close(self) # trying to retranslate Login after Calendar so doesnt hold calendar open
+            print("closing")
+            #sys.exit(self)
+            # app = QApplication(sys.argv)
+            # gui = Calendar()
+            # gui.show()
+            # sys.exit(app.exec_())
+
+    def show_calendar(self): # maaaybe not over here but in user.py
+        Login.close(self)
+        print("apple")
+        app = QApplication(sys.argv)
+        #gui = Calendar()
+        gui.show()
+        #sys.exit(app.exec_())
+        # dialog = Calendar(self)
+        # dialog.exec_()
+        # dialog.show()
+        # dialog.raise_()
+        # dialog.activateWindow()
 
     def create_account(self):
-        try:
-            self.username = self.lineEdit.text()
-            self.password = self.lineEdit_2.text()
-            if (self.username == "") or (self.password == ""):
-                self.no_new_input()
-            else:
-                print("in")
-                self.new_user = True # set to false after failure??????????
-                User(self.username, self.password, self.new_user) # TAKE IN USER AS PARENT AND THEN CALL TO CREATE METHOD
-                print("out")
-                self.success() # NOT WORKING CORRECTLY BECAUSE CANT DIFFERENTIATE CREATION and ALREADY EXISTS
-                self.new_user = False # HERE?????
-        except:
-            print("in except")
-            self.repeat()
+        self.username = self.lineEdit.text()
+        self.password = self.lineEdit_2.text()
+        if (self.username == "") or (self.password == ""):
+            self.no_new_input()
+        else:
+            print("in create account")
+            self.new_user = True
+            User(self, self.username, self.password, self.new_user)
+            print("out create account")
+            self.new_user = False
 
-def main():
-    app = QApplication(sys.argv)
-    gui = Login()
-    gui.show()
-    sys.exit(app.exec_())
-
-
-main()
+# def main():
+#     app = QApplication(sys.argv)
+#     gui = Login()
+#     # gui.show()
+#     # gui.exec()
+#     gui.exec_()
+#     gui.show()
+#     # gui.raise_()
+#     # gui.activateWindow()
+#     print("gui", gui)
+#     # cal = Calendar()
+#     # cal.show()
+#     #sys.exit(app.exec_()) # this works but incorrectly
+#
+#
+# main()
