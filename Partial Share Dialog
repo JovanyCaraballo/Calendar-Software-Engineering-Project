@@ -4,8 +4,9 @@ import sqlite3
 
 
 class Share(QDialog):
-    def __init__(self):
-        super(Share, self).__init__()
+    def __init__(self, parent):
+        super(Share, self).__init__(parent)
+        self._parent = parent
         self.setup_ui(self)
 
     def setup_ui(self, Dialog):
@@ -17,7 +18,7 @@ class Share(QDialog):
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel|QtWidgets.QDialogButtonBox.Ok)
         self.buttonBox.setObjectName("buttonBox")
         self.label = QtWidgets.QLabel(Dialog)
-        self.label.setGeometry(QtCore.QRect(40, 120, 55, 16))
+        self.label.setGeometry(QtCore.QRect(55, 122, 55, 16))
         self.label.setObjectName("label")
         self.lineEdit = QtWidgets.QLineEdit(Dialog)
         self.lineEdit.setGeometry(QtCore.QRect(110, 120, 211, 22))
@@ -31,7 +32,7 @@ class Share(QDialog):
     def retranslate_ui(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Share"))
-        self.label.setText(_translate("Dialog", "TextLabel"))
+        self.label.setText(_translate("Dialog", "Send to:"))
 
     def close_application(self):
         confirmation = QMessageBox.question(self, "Confirm Close",
@@ -47,21 +48,32 @@ class Share(QDialog):
 
     def not_found(self):
         show_msg = QMessageBox(QMessageBox.Critical,
-                               'Error', "User not found.",
+                               "User Not Found",
                                "Please enter a valid username.",
                                QMessageBox.Ok | QMessageBox.Ok)
         show_msg.exec_()
+        self.lineEdit.setFocus()
+        self.lineEdit.clear()
+
+    def success(self):
+        print("IN SUCCESS")
+        show_msg = QMessageBox(QMessageBox.Information,
+                               "Shared Calendar",
+                               f'Successfully shared calendar with {self.name}.',
+                               QMessageBox.Ok)
+        show_msg.exec_()
+        Share.close(self)
 
     def send_to(self):
-        try:
-            self.name = self.lineEdit.text()
-            if self.name != "":
-                self.find_user()
-
-            # else:
-            #     #Share.close(self)
-        except:
-            pass
+        #try:
+        self.name = self.lineEdit.text()
+        if self.name != "":
+            self.find_user()
+        else:
+            self.not_found()
+        # except:
+        #     print("check error here")
+        #     pass # self.not_found
 
     def find_user(self):
         db_path = "calendar_data_db.db"
@@ -78,5 +90,9 @@ class Share(QDialog):
         if user == None:
             print("no such user")
             self.not_found()
-        # else:
+        else:
+            self.success()
+            #for row in cursor.execute("SELECT * FROM Calendar WHERE code=?", (code,)):
+            # need sender name
+            #for row in cursor.execute("UPDATE Calendar SET code=? WHERE username=? AND", (receiver_code,sender_name)): # overrites senders code?
         #     #get all personal data and insert into other persons table
