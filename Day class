@@ -1,5 +1,4 @@
 from datetime import datetime
-import calendar
 import sqlite3
 
 
@@ -7,63 +6,64 @@ class Day:
     def __init__(self, parent, day, code):
         self._parent = parent
         self.i = 0
-        self.check_overlap(day, code)
+        self.time_periods = []
+        self.code = code
+        self.check_overlap(day)
 
 
-    def check_overlap(self, day, code): # compares to all other times in that day
-        time_periods = ["6:30am-7:00am", "8:00am-9:00am","6:00am-7:30am", "7:00pm-9:00pm", "8:00pm-8:30pm"]
+    def check_overlap(self, day): # compares to all other times in that day
+        #self.time_periods = ["6:30am-7:00am", "8:00am-9:00am","6:00am-7:30am", "7:00pm-9:00pm", "8:00pm-8:30pm"]
         #
-        # time_periods = ["7:45am-8:10am", "7:50am-8:00am", "8:00am-8:19am", "8:15am-8:30am",
+        # self.time_periods = ["7:45am-8:10am", "7:50am-8:00am", "8:00am-8:19am", "8:15am-8:30am",
         #                 "8:45am-9:00am", "8:30am-8:35am", "8:30am-8:40am"]
-
-        time_periods.append("8:30am-7:30pm") # TEST TIMES UNTIL PUT REAL EVENTS IN DATABASE
-        time_periods.append("6:35am-7:40pm")
-        time_periods.append("12:00am-9:00pm")
+        # self.time_periods.append("8:30am-7:30pm") # TEST TIMES UNTIL PUT REAL EVENTS IN DATABASE
+        # self.time_periods.append("6:35am-7:40pm")
+        # self.time_periods.append("12:00am-9:00pm")
         current_date = datetime.now()
         if len(day) < 2:
             day = f'0{day}'
         date = f'{current_date.year}-{current_date.month}-{day}'
-
         #print("today", date)
+
         db_path = "calendar_data_db.db"
         connection = sqlite3.connect(db_path)
 
         cursor = connection.cursor()
         event_time = None
-        for row in cursor.execute("SELECT * FROM Calendar WHERE event_date=? AND code=?", (date, code)): #selects all times from day in month
-        #for row in cursor.execute("SELECT * FROM Calendar"):
+        # selects all times from day in month
+        for row in cursor.execute("SELECT * FROM Calendar WHERE event_date=? AND code=?", (date, self.code)):
             event_name = row[0]
             event_date = row[1]
             event_time = row[2]
             print(f'{event_name:20} {event_date:20} {event_time:10}')
-        #     self.time_periods.append(event_time)
-        #     time_periods.append(event_time)
+            self.time_periods.append(event_time)
+            #time_periods.append(event_time) # For Testing
 
-        # if event_time == None:
-        if event_time != None: # FOR TESTING ONlY
-        #     print("no events")
-        # else:
+        if event_time == None:
+            print("no events")
+        else:
 
-            dates = [] # self
-            overlapping = [] # self
+            self.dates = [] # self
+            self.overlapping = [] # self
             DATE_FORMAT = "%I:%M%p"
 
-            for block in time_periods:
+            for block in self.time_periods:
                 times = block.split("-")
-                #TEMPORARY to get year, month, and day!!!!!!!!!!!!!!!!!!!! - get from specific date not current
-                beg_time = datetime.strptime(times[0], DATE_FORMAT).replace(year=current_date.year, month=current_date.month, day=current_date.day)
-                # cannot go from pm to am because its getting same date****
-                end_time = datetime.strptime(times[1], DATE_FORMAT).replace(year=current_date.year, month=current_date.month, day=current_date.day)
-                # print("begin", beg_time)
-                # print("end", end_time)
-                dates.append((beg_time, end_time))
+                day = int(day)
+                print("day", day)
+                beg_time = datetime.strptime(times[0], DATE_FORMAT).replace(year=current_date.year, month=current_date.month, day=day)
+                end_time = datetime.strptime(times[1], DATE_FORMAT).replace(year=current_date.year, month=current_date.month, day=day)
+                print("begin", beg_time)
+                print("end", end_time)
+                self.dates.append((beg_time, end_time))
 
-            for i in range(len(dates)):
-                for j in range(i + 1, len(dates)):
-                    if (dates[i][0] < dates[j][1]) and (dates[j][0] < dates[i][1]):
-                        overlapping.append((dates[i], dates[j]))
+            for i in range(len(self.dates)):
+                for j in range(i + 1, len(self.dates)):
+                    if (self.dates[i][0] < self.dates[j][1]) and (self.dates[j][0] < self.dates[i][1]):
+                        self.overlapping.append((self.dates[i], self.dates[j]))
 
-            for overlap in overlapping: # only getting here because of if != None
+            for overlap in self.overlapping:
+                print("in overlap")
                 print(f'{overlap[0][0].strftime(DATE_FORMAT)}-{overlap[0][1].strftime(DATE_FORMAT)}'
                       f' overlaps with '
                       f'{overlap[1][0].strftime(DATE_FORMAT)}-{overlap[1][1].strftime(DATE_FORMAT)}')
@@ -72,9 +72,4 @@ class Day:
                       f' overlaps with '
                       f'{overlap[1][0].strftime(DATE_FORMAT)}-{overlap[1][1].strftime(DATE_FORMAT)}', date, self.i)
                 self.i = self.i + 1
-
-# def main():
-#     check_overlap()
-#
-#
-# main()
+                

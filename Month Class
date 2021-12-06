@@ -1,19 +1,17 @@
-from PyQt5.QtWidgets import *
 from datetime import datetime
 from day import Day
 import calendar
-import random
-import sys
 
 class Month:
     def __init__(self, parent, month_num, code):
         self.month_num = month_num
         self.num_of_days = 0
         self.month = []
+        self.code = code
         self.i = 1 # START AT DAY 1 - FIRST OF MONTH
-        self.scan_days(parent, code)
+        self.scan_days(parent)
 
-    def scan_days(self, parent, code):
+    def scan_days(self, parent):
         current_date = datetime.now()
         print(calendar.monthrange(current_date.year, self.month_num))
         self.num_of_days = calendar.monthrange(current_date.year, self.month_num)
@@ -21,16 +19,7 @@ class Month:
         print("num of days", self.num_of_days)
 
         while len(self.month) < self.num_of_days: # adjusts based on month
-            #print("day", self.i)
+            #print("day", self.i) # show which day
             self.month.append(self.i)
-            dialog = Day(parent, str(self.i), code)
+            dialog = Day(parent, str(self.i), self.code)
             self.i = self.i + 1
-
-# def main():
-#     app = QApplication(sys.argv)
-#     gui = Month(random.randint(1,12))
-#     #gui.show()
-#     sys.exit(app.exec_())
-#
-#
-# main()

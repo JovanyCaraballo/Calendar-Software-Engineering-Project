@@ -1,16 +1,12 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 import sqlite3
-import sys
 
 
 class Delete_Event(QDialog):
-    def __init__(self): #User()
+    def __init__(self, code):
         super(Delete_Event, self).__init__()
-        # event_name, event_date, event_time
-        # self._event_name = event_name
-        # self._event_date = event_date
-        # self._event_time = event_time
+        self.code = code
         self.setup_ui(self)
 
     def setup_ui(self, Dialog):
@@ -95,47 +91,43 @@ class Delete_Event(QDialog):
         Delete_Event.close(self)
 
     def delete_event(self):
-        #try:
         self.name = self.lineEdit.text()
         self.date = self.lineEdit2.text()
         self.time = self.lineEdit3.text()
         if (self.name == "") or (self.date == "") or (self.time == ""):
             self.no_input()
         else:
-            #     try:
-
             print("in delete event")
-            #self.new_user = True # set to false after failure???
-            #User(self.username, self.password, self.new_user) # TAKE IN USER AS PARENT AND THEN CALL TO CREATE METHOD
             db_path = "calendar_data_db.db"
             connection = sqlite3.connect(db_path)
 
             cursor = connection.cursor()
             event_time = None
-            for row in cursor.execute("SELECT * FROM Calendar WHERE event_name=?", (self.name,)): # CHECK CODE
-                if row[2] == self.time: # use if not allowing similar times but allowing similar names
-                    event_name = row[0]
-                    event_date = row[1] # what if its the same time and name but different dates? - need to account for dates
-                    event_time = row[2]
-                    print(f'{event_name:20} {event_date:10} {event_time:10}')
+            for row in cursor.execute("SELECT * FROM Calendar WHERE event_name=? AND code=?", (self.name, self.code)):
+                if row[2] == self.time:
+                    if row[1] == self.date:
+                        event_name = row[0]
+                        event_date = row[1]
+                        event_time = row[2]
+                        print(f'{event_name:10} {event_date:15} {event_time:10}')
             if event_time == None:
                 print("does not exists")
                 self.invalid()
             else:
                 print("DELETE EVENT")
 
-                # CREATE CALENDAR FOR EACH PERSON/CODE OR 1 BIG ONE WITH BLANK INFO UNLESS PROVIDED AND SELECT EVENTS BY CODE
                 sql_command = """
-                DELETE FROM Calendar WHERE event_name=? AND event_time=? AND code=?;
+                DELETE FROM Calendar WHERE event_name=? AND event_date=? AND event_time=? AND code=?;
                 """
 
-                # user_record = (self.name, self.time, code)
-                # cursor.execute(sql_command, user_record)
+                user_record = (self.name, self.date, self.time, self.code)
+                cursor.execute(sql_command, user_record)
                 # connection.commit()
-                # connection.close()
+                connection.close()
 
-                #CALL TO USER TO AUTHORIZE AND GET CODE
+                # #CALL TO CHECK OVERLAP
 
                 print("out delete event")
                 self.success()
-                #self.new_user = False # HERE?????
+
+
