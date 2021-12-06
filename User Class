@@ -1,8 +1,5 @@
-from PyQt5 import QtCore, QtGui, QtWidgets
-#from SharedCalendarCopy import Calendar
 from PyQt5.QtWidgets import *
 import sqlite3
-import sys
 
 class User:
     _last_assigned_number = 1000
@@ -10,32 +7,27 @@ class User:
         self._parent = parent
         self._username = username
         self._password = password
-        print("number before", User._last_assigned_number) #PREVENT SAME USER CODE BY GETTING LARGEST CODE, ORDER BY CODE ***************
+        self.code = 0 # ERROR CODE USED FOR TESTING
+        print("number before", User._last_assigned_number)
         if new_user == True:
             self.add_user()
         elif new_user == False:
             print("is login working?")
-            hold = self.authorize()
-            print("hold is", hold)
-            if hold == False:
+            access = self.authorize()
+            print("access is", access)
+            if access == False:
                 self.invalid()
             else:
                 print("user found / exists")
-                #self.show_calendar()
+                print("code in user", self.code)
+                self._parent.send_code(self.code)
+                self._parent.check_login_status()
+    #
+    # def get_code(self):
+    #     print(self.code)
+    #     return self.code
 
-    def show_calendar(self):
-        print("show calendar")
-        print(sys.argv)
-        dialog = Calendar() #self?
-        #error below?
-        # dialog.exec_()
-        # dialog.show()
-        # dialog.raise_()
-        # dialog.activateWindow()
-        print("end")
-
-
-    def create_calendar(self, name, date, time, code):
+    def create_calendar(self, name, date, time, code): # MUST CREATE NEW CALENDAR FOR PERSON
         print("CREATING")
         db_path = "calendar_data_db.db"
         connection = sqlite3.connect(db_path)
@@ -62,9 +54,12 @@ class User:
         # """)
 
         user_record = (name, date, time, code)
-        #cursor.execute(sql_command, user_record)
-        #connection.commit()
-        #connection.close()
+        cursor.execute(sql_command, user_record)
+        # connection.commit()
+        connection.close()
+
+        # DO NOT USE
+        # cursor.execute(sql_command) # ****WARNING CLEARS WHOLE CALENDAR DATABASE****
 
     def invalid(self):
         show_msg = QMessageBox(QMessageBox.Critical,
@@ -96,7 +91,6 @@ class User:
         self._parent.lineEdit.setFocus()
         self._parent.lineEdit.clear()
         self._parent.lineEdit_2.clear()
-        #self._parent.close(self._parent)
 
     def add_user(self):
         db_path = "calendar_data_db.db"
@@ -116,41 +110,52 @@ class User:
         new_user_check = self.authorize()
         print("new user check after authorization", new_user_check)
         if new_user_check == False:
+            self.new_number()
             User._last_assigned_number = User._last_assigned_number + 1
-            print("user code is:", User._last_assigned_number)
-            code = User._last_assigned_number
-            user_record = (self._username, self._password, code)
+            print("new user code is:", User._last_assigned_number)
+            self.code = User._last_assigned_number
+            user_record = (self._username, self._password, self.code)
             cursor.execute(sql_command, user_record)
             # cursor.execute(sql_command) #used to delete all
             # connection.commit()
-            connection.close() # create before close?
-            name = "calendar_created"
+            connection.close()
+            name = "calendar_created" # check if this cause any errors
             date = "calendar_created"
             time = "calendar_created"
-            self.create_calendar(name, date, time, code) # create personal calendar
+            self.create_calendar(name, date, time, self.code) # creates personal calendar
             self.success()
         else:
             print("User already exists")
             self.repeat()
 
+    def new_number(self):
+        db_path = "calendar_data_db.db"
+        connection = sqlite3.connect(db_path)
+        cursor = connection.cursor()
+        for row in cursor.execute("SELECT * FROM Users ORDER BY code DESC LIMIT 1"):
+            user = row[0]
+            passcode = row[1]
+            code = row[2]
+            print(f'{user:20} {passcode:10} {code:10}')
+            User._last_assigned_number = code
+
     def authorize(self):
-        #print("first")
         db_path = "calendar_data_db.db"
         connection = sqlite3.connect(db_path)
 
         cursor = connection.cursor()
         print("try", self._username, self._password)
-        #for row in cursor.execute("SELECT * FROM Users"):
         user = None
         for row in cursor.execute("SELECT * FROM Users WHERE username=?", (self._username,)):
             if row[1] == self._password:
                 print("Leaked password", self._password)
                 user = row[0]
                 passcode = row[1]
-                code = row[2]
-                print(f'{user:20} {passcode:10} {code:10}')  # EACH USER HAS THEIR OWN CALENDAR CODE THAT THEY USE TO SEE SPECIFIC CALENDARS
+                self.code = row[2]
+                print(f'{user:20} {passcode:10} {self.code:10}')  # EACH USER HAS THEIR OWN CALENDAR CODE THAT THEY USE TO SEE SPECIFIC CALENDARS
         if user == None:
             print("user does not exists")
             return False
         else:
             return True
+        
