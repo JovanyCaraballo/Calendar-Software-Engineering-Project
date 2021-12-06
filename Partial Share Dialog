@@ -4,9 +4,10 @@ import sqlite3
 
 
 class Share(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent, code):
         super(Share, self).__init__(parent)
         self._parent = parent
+        self.code = code
         self.setup_ui(self)
 
     def setup_ui(self, Dialog):
@@ -65,15 +66,11 @@ class Share(QDialog):
         Share.close(self)
 
     def send_to(self):
-        #try:
         self.name = self.lineEdit.text()
         if self.name != "":
             self.find_user()
         else:
             self.not_found()
-        # except:
-        #     print("check error here")
-        #     pass # self.not_found
 
     def find_user(self):
         db_path = "calendar_data_db.db"
@@ -85,14 +82,18 @@ class Share(QDialog):
         for row in cursor.execute("SELECT * FROM Users WHERE username=?", (self.name,)):
             user = row[0]
             passcode = row[1]
-            code = row[2]
-            print(f'{user:20} {passcode:10} {code:10}')  # EACH USER HAS THEIR OWN CALENDAR CODE THAT THEY USE TO SEE SPECIFIC CALENDARS
+            to_code = row[2]
+            print(f'{user:20} {passcode:10} {to_code:10}')  # EACH USER HAS THEIR OWN CALENDAR CODE THAT THEY USE TO SEE SPECIFIC CALENDARS
         if user == None:
             print("no such user")
             self.not_found()
         else:
+            sql_command = "UPDATE Calendar SET code=? WHERE code=?"
+
+            #get all personal data and insert into other persons table
+            user_record = (to_code, self.code) # yes supposed to be retriever code and sender name- # overrites senders code?
+            cursor.execute(sql_command, user_record)
+            # connection.commit()
+            connection.close()
             self.success()
-            #for row in cursor.execute("SELECT * FROM Calendar WHERE code=?", (code,)):
-            # need sender name
-            #for row in cursor.execute("UPDATE Calendar SET code=? WHERE username=? AND", (receiver_code,sender_name)): # overrites senders code?
-        #     #get all personal data and insert into other persons table
+            
