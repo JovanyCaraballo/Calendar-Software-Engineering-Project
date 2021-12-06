@@ -1,0 +1,229 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+from create_event import Create_Event
+from delete_event import Delete_Event
+from datetime import date, datetime
+from ShareDialogCopy import Share
+from CheckUserCopy import Login
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
+from month import Month
+import calendar
+import sys
+import re
+
+
+class Calendar(QMainWindow):
+    def __init__(self, parent=None):
+        super(Calendar, self).__init__(parent) # QMainWindow or MainWindow
+        dialog = Login(self)
+        dialog.exec_()
+        dialog.show()
+        dialog.closeEvent(self.check_login_status())
+        # dialog.raise_()
+        # dialog.activateWindow()
+        print("working?")
+        print(parent)
+        self.overlap_box = []
+        self.setup_ui(self)
+
+    def setup_ui(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(900, 800)
+        self.centralwidget = QtWidgets.QWidget(MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.frame = QtWidgets.QFrame(self.centralwidget)
+        self.frame.setGeometry(QtCore.QRect(10, 10, 871, 821))
+        self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        #self.frame.setStyleSheet("border: 3px solid blue;")
+        self.frame.setObjectName("frame")
+
+        self.horizontalLayoutWidget = QtWidgets.QWidget(self.frame)
+        self.horizontalLayoutWidget.setGeometry(QtCore.QRect(640, 10, 195, 80))
+        self.horizontalLayoutWidget.setObjectName("horizontalLayoutWidget")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
+        self.horizontalLayout.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.push_button = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.push_button.setObjectName("push_button")
+        self.push_button.clicked.connect(self.show_year) # SHOW YEAR TAB
+        self.horizontalLayout.addWidget(self.push_button)
+        self.push_button2 = QtWidgets.QPushButton(self.horizontalLayoutWidget)
+        self.push_button2.setObjectName("push_button2")
+        self.push_button2.clicked.connect(self.show_month)  # SHOW MONTH TAB
+        self.horizontalLayout.addWidget(self.push_button2)
+
+        self.horizontalLayoutWidget2 = QtWidgets.QWidget(self.frame)
+        self.horizontalLayoutWidget2.setGeometry(QtCore.QRect(0, 690, 195, 80))
+        self.horizontalLayoutWidget2.setObjectName("horizontalLayoutWidget2")
+        self.horizontalLayout2 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget2)
+        self.horizontalLayout2.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout2.setObjectName("horizontalLayout2")
+        self.push_button3 = QtWidgets.QPushButton(self.horizontalLayoutWidget2)
+        self.push_button3.setObjectName("push_button3")
+        self.push_button3.clicked.connect(self.share)
+        self.horizontalLayout2.addWidget(self.push_button3)
+
+        self.horizontalLayoutWidget3 = QtWidgets.QWidget(self.frame)
+        self.horizontalLayoutWidget3.setGeometry(QtCore.QRect(640, 80, 195, 80))
+        self.horizontalLayoutWidget3.setObjectName("horizontalLayoutWidget3")
+        self.horizontalLayout3 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget3)
+        self.horizontalLayout3.setContentsMargins(0, 0, 0, 0)
+        self.horizontalLayout3.setObjectName("horizontalLayout3")
+        self.push_button4 = QtWidgets.QPushButton(self.horizontalLayoutWidget3)
+        self.push_button4.setObjectName("push_button4")
+        self.push_button4.clicked.connect(self.create)
+        self.horizontalLayout3.addWidget(self.push_button4)
+        self.push_button5 = QtWidgets.QPushButton(self.horizontalLayoutWidget3)
+        self.push_button5.setObjectName("push_button5")
+        self.push_button5.clicked.connect(self.delete)
+        self.horizontalLayout3.addWidget(self.push_button5)
+
+        self.gridLayoutWidget = QtWidgets.QWidget(self.frame)
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 70, 540, 635)) # (10, 70, 601, 631))
+        self.gridLayoutWidget.setObjectName("gridLayoutWidget")
+        self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
+        self.gridLayout.setObjectName("gridLayout")
+        #self.gridLayoutWidget.setStyleSheet("border: 3px solid blue;")
+
+        self.label = QtWidgets.QLabel(self.gridLayoutWidget)
+        self.label.setObjectName("label")
+        #self.label.setStyleSheet("border: 3px solid blue;")
+
+        self.scrollArea = QtWidgets.QScrollArea(self.centralwidget)
+        self.scrollArea.setGeometry(QtCore.QRect(590, 200, 250, 500))
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 289, 149)) # CHECK
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        # self.label2 = QtWidgets.QLabel(self.scrollArea)
+        # self.label2.setGeometry(QtCore.QRect(0, 0, 250, 500))
+        # self.label2.setObjectName("label2")
+
+        self.table_widget = QtWidgets.QTableWidget(self.scrollArea)     # self.gridLayoutWidget)
+        self.table_widget.setObjectName("table_widget")
+        self.table_widget.setGeometry(QtCore.QRect(-27, 0, 277, 500))
+        self.table_widget.setColumnCount(1)
+        self.table_widget.setColumnWidth(0, 250)
+        self.table_widget.setHorizontalHeaderLabels((",").split(","))
+        # self.gridLayout.addWidget(self.table_widget, 0, 0, 1, 1)
+        # self.scrollArea.setWidget(self.table_widget)
+
+        #self.label2.setStyleSheet("border: 3px solid blue;")
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.menubar = QtWidgets.QMenuBar(MainWindow)
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 600, 26))
+        self.menubar.setObjectName("menubar")
+        MainWindow.setMenuBar(self.menubar)
+        self.statusbar = QtWidgets.QStatusBar(MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
+
+        self.retranslate_ui(MainWindow)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
+    def retranslate_ui(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "Calendar"))
+        self.push_button.setText(_translate("MainWindow", "Year"))
+        self.push_button2.setText(_translate("MainWindow", "Month"))
+        self.push_button3.setText(_translate("MainWindow", "Share"))
+        self.push_button4.setText(_translate("MainWindow", "Create"))
+        self.push_button5.setText(_translate("MainWindow", "Delete"))
+        self.show_year()
+
+    def check_login_status(self):
+        self.close()
+
+
+    def update_scroll_area(self, text, date, i):
+        #print(date)
+        self.table_widget.setHorizontalHeaderLabels((date).split())
+        if i == 0:
+            self.overlap_box = []
+        self.overlap_box.append(text)
+        rows = len(self.overlap_box)
+        #print("rows", rows)
+        self.table_widget.setRowCount(i+1)
+        #print(i)
+        while i < rows:
+            self.table_widget.setStyleSheet("QTableWidget{font-size: 6.2pt;}")
+            self.table_widget.setItem(i, 0, QTableWidgetItem(f'  {self.overlap_box[i]:}'))
+            i = i + 1
+
+    def show_year(self):
+        # display the calendar by year
+        current_date = datetime.now()
+        Month(self, current_date.month, code)
+        print(calendar.calendar(current_date.year, 2, 1, 6))
+        print("repr", repr(calendar.calendar(current_date.year, 2, 1, 6)))
+        #cal = calendar.calendar(current_date.year, 2, 1, 6).split('\n')
+        #cal = calendar.calendar(current_date.year, 2, 1, 6)
+        p = calendar.TextCalendar(firstweekday=0)
+        cal = p.formatyear(current_date.year, 1, 1, 2)
+        cal = re.split('\n', cal)
+        print("cal", cal)
+        st = ""
+        for items in cal:
+            st += f'{items:}'
+            st += '\n'
+
+        print("string", st)
+        print(repr(st))
+        #self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setText(st)
+        self.label.resize(540, 628)
+        self.label.setStyleSheet("QLabel{font-size: 9pt;}")
+        #self.label.setText(f'{calendar.calendar(current_date.year, 2, 1, 6)}')
+        # a = calendar.TextCalendar(firstweekday=0)
+        # self.label.setText(f'{a.formatyear(current_date.year, 5, 1, 6)}')
+
+    def share(self):
+        dialog = Share(self)
+        print(self)
+        dialog.exec() #check underscore
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def create(self):
+        dialog = Create_Event() #self - User(self.username, self.password, False)
+        dialog.exec() #check underscore
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def delete(self):
+        dialog = Delete_Event() # self
+        dialog.exec() #check underscore
+        dialog.show()
+        dialog.raise_()
+        dialog.activateWindow()
+
+    def show_month(self):
+        # populate calendar with all details
+        current_date = datetime.now()
+        Month(self, current_date.month, code)
+        yy = current_date.year  # get selected year
+        mm = current_date.month  # get selected month
+        dd = current_date.day  # get selected day
+
+        # display the calendar by month
+        print(calendar.month(yy, mm))
+        self.label.resize(540, 631)
+        self.label.setStyleSheet("QLabel{font-size: 30pt;}")
+        self.label.setText(calendar.month(yy, mm))
+
+def main():
+    app = QApplication(sys.argv)
+    print(sys.argv)
+    gui = Calendar()
+    gui.show()
+    sys.exit(app.exec_())
+
+
+main()
