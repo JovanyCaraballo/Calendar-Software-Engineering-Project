@@ -5,7 +5,6 @@ from datetime import date, datetime
 from ShareDialogCopy import Share
 from CheckUserCopy import Login
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
 from month import Month
 import calendar
 import sys
@@ -13,16 +12,11 @@ import re
 
 
 class Calendar(QMainWindow):
-    def __init__(self, parent=None):
-        super(Calendar, self).__init__(parent) # QMainWindow or MainWindow
-        dialog = Login(self)
-        dialog.exec_()
-        dialog.show()
-        dialog.closeEvent(self.check_login_status())
-        # dialog.raise_()
-        # dialog.activateWindow()
+    def __init__(self, code):
+        super(Calendar, self).__init__() # QMainWindow or MainWindow
         print("working?")
-        print(parent)
+        #print(parent)
+        self.code = code
         self.overlap_box = []
         self.setup_ui(self)
 
@@ -136,10 +130,6 @@ class Calendar(QMainWindow):
         self.push_button5.setText(_translate("MainWindow", "Delete"))
         self.show_year()
 
-    def check_login_status(self):
-        self.close()
-
-
     def update_scroll_area(self, text, date, i):
         #print(date)
         self.table_widget.setHorizontalHeaderLabels((date).split())
@@ -158,7 +148,8 @@ class Calendar(QMainWindow):
     def show_year(self):
         # display the calendar by year
         current_date = datetime.now()
-        Month(self, current_date.month, code)
+        #code = "temp"
+        Month(self, current_date.month, self.code)
         print(calendar.calendar(current_date.year, 2, 1, 6))
         print("repr", repr(calendar.calendar(current_date.year, 2, 1, 6)))
         #cal = calendar.calendar(current_date.year, 2, 1, 6).split('\n')
@@ -183,23 +174,23 @@ class Calendar(QMainWindow):
         # self.label.setText(f'{a.formatyear(current_date.year, 5, 1, 6)}')
 
     def share(self):
-        dialog = Share(self)
-        print(self)
-        dialog.exec() #check underscore
+        #code = "temp"
+        dialog = Share(self, self.code) # check sending self
+        dialog.exec()
         dialog.show()
         dialog.raise_()
         dialog.activateWindow()
 
     def create(self):
-        dialog = Create_Event() #self - User(self.username, self.password, False)
-        dialog.exec() #check underscore
+        dialog = Create_Event(self.code)
+        dialog.exec()
         dialog.show()
         dialog.raise_()
         dialog.activateWindow()
 
     def delete(self):
-        dialog = Delete_Event() # self
-        dialog.exec() #check underscore
+        dialog = Delete_Event(self.code)
+        dialog.exec()
         dialog.show()
         dialog.raise_()
         dialog.activateWindow()
@@ -207,7 +198,7 @@ class Calendar(QMainWindow):
     def show_month(self):
         # populate calendar with all details
         current_date = datetime.now()
-        Month(self, current_date.month, code)
+        Month(self, current_date.month, self.code) # check parent sending
         yy = current_date.year  # get selected year
         mm = current_date.month  # get selected month
         dd = current_date.day  # get selected day
@@ -220,10 +211,19 @@ class Calendar(QMainWindow):
 
 def main():
     app = QApplication(sys.argv)
-    print(sys.argv)
-    gui = Calendar()
-    gui.show()
-    sys.exit(app.exec_())
+    gui = Login()
+    gui.exec()
+    #gui.show()
+    allow = gui.show_calendar()
+    print("in main", allow)
+    if allow == True: # ONLY SHOW IF LOGGED IN
+        code = gui.get_code()
+        print("accessed code", code)
+        app2 = QApplication(sys.argv)
+        print(sys.argv)
+        gui2 = Calendar(code)
+        gui2.show()
+        sys.exit(app2.exec_())
 
 
 main()
