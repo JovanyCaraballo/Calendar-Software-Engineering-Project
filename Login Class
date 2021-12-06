@@ -1,14 +1,14 @@
-#from SharedCalendarCopy import Calendar
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import *
 from user import User
-import sys
 
 class Login(QDialog):
-    def __init__(self, parent):
+    def __init__(self): # parent
         super(Login, self).__init__()
-        self._parent = parent
+        #self._parent = parent
         self.new_user = False
+        self.show = False
+        self.code = 0
         self.setup_ui(self)
 
     def setup_ui(self, Dialog):
@@ -88,35 +88,25 @@ class Login(QDialog):
         if (self.username == "") or (self.password == ""):
             self.no_login_input()
         else:
-            print("Check", self.new_user) #CHECK IF NEW USER IS STILL FALSE
+            print("Check", self.new_user) # check if user is still false
             User(self, self.username, self.password, self.new_user)
-            # THIS HAS TO CLOSE?
             print("After check")
-            print(self) # if close login close all and thats what causes error
-
-
-            #CLOSE HERE?
-            self.show_calendar()
-            #Login.close(self) # trying to retranslate Login after Calendar so doesnt hold calendar open
             print("closing")
-            #sys.exit(self)
-            # app = QApplication(sys.argv)
-            # gui = Calendar()
-            # gui.show()
-            # sys.exit(app.exec_())
 
-    def show_calendar(self): # maaaybe not over here but in user.py
-        Login.close(self)
-        print("apple")
-        app = QApplication(sys.argv)
-        #gui = Calendar()
-        gui.show()
-        #sys.exit(app.exec_())
-        # dialog = Calendar(self)
-        # dialog.exec_()
-        # dialog.show()
-        # dialog.raise_()
-        # dialog.activateWindow()
+    def show_calendar(self):
+        return self.show
+
+    def check_login_status(self):
+        print("close login")
+        self.show = True
+        self.close()
+
+    def send_code(self, code):
+        self.code = code
+
+    def get_code(self):
+        print("code in login", self.code)
+        return self.code
 
     def create_account(self):
         self.username = self.lineEdit.text()
@@ -129,20 +119,3 @@ class Login(QDialog):
             User(self, self.username, self.password, self.new_user)
             print("out create account")
             self.new_user = False
-
-# def main():
-#     app = QApplication(sys.argv)
-#     gui = Login()
-#     # gui.show()
-#     # gui.exec()
-#     gui.exec_()
-#     gui.show()
-#     # gui.raise_()
-#     # gui.activateWindow()
-#     print("gui", gui)
-#     # cal = Calendar()
-#     # cal.show()
-#     #sys.exit(app.exec_()) # this works but incorrectly
-#
-#
-# main()
